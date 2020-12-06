@@ -63,7 +63,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val marker = MarkerOptions()
-        loadFromFireBaseDB(this)
+        var flag1 = true
+        var latLngflag: LatLng? = null
+
         order.observe(this, { order ->
             findViewById<TextView>(R.id.addressTV).text = order?.flat + ", " + order?.address
             findViewById<TextView>(R.id.personsNameTV).text = order?.name
@@ -89,18 +91,28 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                     position(it)
                     title(order?.address)
                 }
-                lazy { mMap.addMarker(marker) }
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13f))
+                if (flag1) {
+                    mMap.addMarker(marker)
+                    flag1 = false
+                }
+                if (latLngflag != latLng) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13f))
+                    latLngflag = latLng
+                }
             }
-
         })
         val myLocation = MarkerOptions()
+        var flag2 = true
         ll.observe(this, {
             myLocation.apply {
                 position(it)
-                lazy { mMap.addMarker(myLocation) }
+                if (flag2) {
+                    mMap.addMarker(myLocation)
+                    flag2 = false
+                }
             }
         })
+        loadFromFireBaseDB(this)
     }
     companion object {
         val ll: MutableLiveData<LatLng> = MutableLiveData()
