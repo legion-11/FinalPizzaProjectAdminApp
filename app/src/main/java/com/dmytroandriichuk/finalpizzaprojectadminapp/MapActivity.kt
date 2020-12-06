@@ -3,6 +3,7 @@ package com.dmytroandriichuk.finalpizzaprojectadminapp
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
@@ -62,17 +63,18 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val marker = MarkerOptions()
-        mMap.addMarker(marker)
+        loadFromFireBaseDB(this)
         order.observe(this, { order ->
             findViewById<TextView>(R.id.addressTV).text = order?.flat + ", " + order?.address
             findViewById<TextView>(R.id.personsNameTV).text = order?.name
             findViewById<TextView>(R.id.toppingsTV).text = order?.toppings?.joinToString(", ")
-            val size = when(order?.size) {
-                0->"Small "
-                1->"Medium "
-                2->"Large "
-                else->"Extra "
+            val size = when (order?.size) {
+                0 -> "Small "
+                1 -> "Medium "
+                2 -> "Large "
+                else -> "Extra "
             }
+
             findViewById<TextView>(R.id.pizzaTV).text = size + order?.pizza
             latLng = order.lat?.let { lat ->
                 order.lng?.let { lng ->
@@ -80,21 +82,23 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
 
+            Log.i("TAG", "onMapReady: "+latLng.toString())
+
             latLng?.let {
                 marker.apply {
                     position(it)
                     title(order?.address)
                 }
+                lazy { mMap.addMarker(marker) }
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13f))
             }
 
         })
         val myLocation = MarkerOptions()
-        mMap.addMarker(myLocation)
-        //todo listener location
         ll.observe(this, {
             myLocation.apply {
                 position(it)
+                lazy { mMap.addMarker(myLocation) }
             }
         })
     }
