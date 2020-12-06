@@ -3,7 +3,7 @@ package com.dmytroandriichuk.finalpizzaprojectadminapp.dataClasses
 import com.google.firebase.database.IgnoreExtraProperties
 
 @IgnoreExtraProperties
-data class Admin (
+data class AdminLocation (
     var lat: Double? = 0.0,
     var lng: Double? = 0.0
 ) {

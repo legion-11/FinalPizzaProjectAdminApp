@@ -22,7 +22,6 @@ class OrdersAdapter(private val dataSet: List<Order?>,
         val pizzatv: TextView = view.findViewById(R.id.orderItemPizzaType)
         val toppingstv: TextView = view.findViewById(R.id.orderItemToppings)
         val pricetv: TextView = view.findViewById(R.id.orderItemPrice)
-        val orderStatusImage: ImageView = view.findViewById(R.id.orderItemStatusImage)
         val datetv: TextView = view.findViewById(R.id.orderItemDate)
 
         init {
@@ -57,11 +56,6 @@ class OrdersAdapter(private val dataSet: List<Order?>,
         viewHolder.toppingstv.text = order.toppings?.joinToString(" ") ?: ""
         viewHolder.pricetv.text = "${order.price.toString()}$"
 
-        viewHolder.orderStatusImage.setImageResource(when(order.status) {
-            0 -> android.R.drawable.presence_offline
-            1 -> android.R.drawable.presence_away
-            else -> android.R.drawable.presence_online
-        })
         viewHolder.datetv.text = order.date?.let { Date(it).toString() }
     }
 

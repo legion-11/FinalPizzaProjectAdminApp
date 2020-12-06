@@ -2,12 +2,14 @@ package com.dmytroandriichuk.finalpizzaprojectadminapp
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -15,13 +17,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.dmytroandriichuk.finalpizzaprojectadminapp.dataClasses.Admin
+import com.dmytroandriichuk.finalpizzaprojectadminapp.dataClasses.AdminLocation
 import com.dmytroandriichuk.finalpizzaprojectadminapp.dataClasses.Order
 import com.google.android.gms.location.*
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import java.io.Serializable
 
 
 class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListener  {
@@ -39,10 +43,10 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
 
     private lateinit var mAuth: FirebaseAuth
     private var ordersLiveData: MutableLiveData<List<Order>> = MutableLiveData()
+    private var keys: List<String> = emptyList()
     private lateinit var database: FirebaseDatabase
     private lateinit var querry: Query
     private var listener: ValueEventListener? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_see_orders)
@@ -65,22 +69,36 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
             list.adapter = OrdersAdapter(it, this)
             Log.i("TAG", "onCreate: $it")
         })
+
         loadWaitingFromFireBaseDB(this)
+        findViewById<Button>(R.id.seeOrdersButton).setOnClickListener {
+            if (title == "You can take this orders"){
+                title = "My orders"
+                loadMyFromFireBaseDB(this)
+            } else {
+                title = "You can take this orders"
+                loadWaitingFromFireBaseDB(this)
+            }
+        }
     }
 
     private fun loadWaitingFromFireBaseDB(context: Context) {
         querry = database.getReference("Order").orderByChild("status").equalTo(0.toDouble() )
+        if (listener != null) { querry.removeEventListener(listener as ValueEventListener) }
         listener = object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     val orders = mutableListOf<Order>()
+                    val keys = mutableListOf<String>()
+
                     for (childSnapshot in snapshot.children) {
                         val order = childSnapshot.getValue(Order::class.java)
                         order?.let {orders.add(it)}
-                        // TODo childSnapshot.key tracking
-                        Log.i("loadFromFireBaseDB", "onDataChange: " + childSnapshot.key)
+                        childSnapshot.key?.let { keys.add(it) }
                     }
+
                     ordersLiveData.value = orders
+                    this@SeeOrdersActivity.keys = keys
                 } else {
                     Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
                 }
@@ -92,6 +110,44 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
         }
         querry.addValueEventListener(listener as ValueEventListener)
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        mAuth.signOut()
+    }
+
+    private fun loadMyFromFireBaseDB(context: Context) {
+        querry = database.getReference("Order").orderByChild("AdminId").equalTo(mAuth.currentUser?.uid)
+        if (listener != null) { querry.removeEventListener(listener as ValueEventListener) }
+
+        listener = object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+
+                    val orders = mutableListOf<Order>()
+                    val keys = mutableListOf<String>()
+
+                    for (childSnapshot in snapshot.children) {
+                        val order = childSnapshot.getValue(Order::class.java)
+                        order?.let {orders.add(it)}
+                        childSnapshot.key?.let { keys.add(it) }
+                    }
+
+                    ordersLiveData.value = orders
+                    this@SeeOrdersActivity.keys = keys
+
+                } else {
+                    Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
+            }
+        }
+        querry.addValueEventListener(listener as ValueEventListener)
+    }
+
+
 
     fun updateGPS(){
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -107,14 +163,13 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
             }
         }
     }
-
     private fun sendLocation(location: Location) {
-        Log.i("TAG", "sendLocation: " + location.latitude)
-        Log.i("TAG", "sendLocation: " + location.longitude)
-        val admin = Admin(location.latitude, location.longitude)
+        val admin = AdminLocation(location.latitude, location.longitude)
+        MapActivity.ll.value = LatLng(location.latitude, location.longitude)
+        Log.i("TAG", "sendLocation: "+admin.toString())
         mAuth.currentUser?.uid?.let { userId ->
             database.getReference("Admins").child(userId).setValue(admin).addOnCompleteListener {
-                if (it.isSuccessful) {
+                if (!it.isSuccessful) {
                     Toast.makeText(this, "Internet Connection Error", Toast.LENGTH_LONG).show()
                 }
             }
@@ -139,6 +194,27 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
     }
 
     override fun onOrderClick(position: Int) {
+        seeOrder(position)
         Log.i("TAG", "onOrderClick: " + ordersLiveData.value?.get(position).toString())
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (listener != null) { querry.removeEventListener(listener as ValueEventListener) }
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+    }
+
+    private fun seeOrder(position: Int) {
+        val key = keys[position]
+
+        val newIntent = Intent(this@SeeOrdersActivity, MapActivity::class.java).apply {
+            putExtra("key", keys[position])
+        }
+        startActivity(newIntent)
+//        order?.status = 1
+//        order?.adminId = mAuth.currentUser?.uid
+//        database.getReference("Order").child(keys[position]).setValue(order).addOnFailureListener {
+//            Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
+//        }
     }
 }
