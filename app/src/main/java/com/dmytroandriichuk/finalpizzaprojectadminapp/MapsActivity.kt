@@ -130,7 +130,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 myLocationMarker = mMap.addMarker(MarkerOptions().apply {
                     position(it)
                     icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(resources, R.drawable.ic_my_location_marker)))
-
                 })
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(it, 12f))
             } else {
