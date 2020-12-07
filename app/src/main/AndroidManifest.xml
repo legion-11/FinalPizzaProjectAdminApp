@@ -25,10 +25,8 @@
         -->
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:label="@string/title_activity_maps" />
 
-        <activity android:name=".MapActivity" />
-        <activity android:name=".SeeOrdersActivity" />
         <activity android:name=".RestorePasswordActivity" />
         <activity android:name=".RegistrationActivity" />
         <activity android:name=".MainActivity">
