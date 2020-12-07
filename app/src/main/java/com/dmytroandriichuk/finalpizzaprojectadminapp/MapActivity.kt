@@ -50,10 +50,21 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun loadFromFireBaseDB(context: Context) {
         key?.let { key ->
             reference = database.getReference("Order").child(key)
+            val button = findViewById<Button>(R.id.takeOrDismissButton)
             listener = object: ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
-                        order.value = snapshot.getValue(Order::class.java)
+                        val success = snapshot.getValue(Order::class.java)
+                        order.value = success
+                        if (success?.status == 0) {
+                            button.text = "Take this order"
+                            button.isClickable = true
+                        } else if (success?.status == 1){
+                            button.text = "Abort"
+                            button.isClickable = true
+                        } else {
+                            button.visibility =View.GONE
+                        }
                     } else {
                         Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
                     }
@@ -104,7 +115,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
         var myLocation: Marker? = null
-        myPostinioLatLng.observe(this, {
+        myPositionLatLng.observe(this, {
             if (myLocation == null) {
                 myLocation = mMap.addMarker(MarkerOptions().apply {
                     position(it)
@@ -118,29 +129,34 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         progressBar.visibility = View.VISIBLE
         loadFromFireBaseDB(this)
         progressBar.visibility = View.GONE
+
         val button = findViewById<Button>(R.id.takeOrDismissButton)
         button.setOnClickListener {
             order.value?.let { order ->
                 progressBar.visibility = View.VISIBLE
                 if (button.text == "Take this order") {
-                    button.text = "Abort"
                     order.status = 1
                     order.adminId = mAuth.currentUser?.uid
                     database.getReference("Order").child(key!!).setValue(order)
                             .addOnSuccessListener {
                                 Toast.makeText(this, "success", Toast.LENGTH_LONG).show()
+                                button.text = "Abort"
                             }
                             .addOnFailureListener {
                                 Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
                             }
 
                 } else if (button.text == "Abort"){
-                    button.text = "Take this order"
                     order.status = 0
                     order.adminId = null
-                    database.getReference("Order").child(key!!).setValue(order).addOnFailureListener {
-                        Toast.makeText(this, "Something wrong happened", Toast.LENGTH_LONG).show()
-                    }
+                    database.getReference("Order").child(key!!).setValue(order)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "success", Toast.LENGTH_LONG).show()
+                                button.text = "Take this order"
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(this, "Something wrong happened", Toast.LENGTH_LONG).show()
+                            }
                 }
                 progressBar.visibility = View.GONE
             }
@@ -148,6 +164,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     companion object {
-        val myPostinioLatLng: MutableLiveData<LatLng> = MutableLiveData()
+        val myPositionLatLng: MutableLiveData<LatLng> = MutableLiveData()
     }
 }

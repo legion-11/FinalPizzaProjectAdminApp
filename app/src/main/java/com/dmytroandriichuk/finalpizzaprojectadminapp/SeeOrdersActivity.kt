@@ -57,7 +57,6 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
         locationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         mAuth = FirebaseAuth.getInstance();
         database = Firebase.database
-
         updateGPS()
 
 
@@ -72,24 +71,24 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
 
         loadWaitingFromFireBaseDB(this)
 
+        title = "You can take this orders"
         val button = findViewById<Button>(R.id.seeOrdersButton)
         button.setOnClickListener {
             if (title == "You can take this orders"){
                 title = "My orders"
-                button.text = "My orders"
+                button.text = "New orders"
                 loadMyFromFireBaseDB(this)
             } else {
                 title = "You can take this orders"
-                button.text = "New orders"
+                button.text = "My orders"
                 loadWaitingFromFireBaseDB(this)
             }
         }
-
     }
 
     private fun loadWaitingFromFireBaseDB(context: Context) {
-        querry = database.getReference("Order").orderByChild("status").equalTo(0.toDouble() )
         if (listener != null) { querry.removeEventListener(listener as ValueEventListener) }
+        querry = database.getReference("Order").orderByChild("status").equalTo(0.toDouble() )
 
         listener = object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -123,8 +122,8 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
     }
 
     private fun loadMyFromFireBaseDB(context: Context) {
-        querry = database.getReference("Order").orderByChild("AdminId").equalTo(mAuth.currentUser?.uid)
         if (listener != null) { querry.removeEventListener(listener as ValueEventListener) }
+        querry = database.getReference("Order").orderByChild("adminId").equalTo(mAuth.currentUser?.uid)
 
         listener = object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -167,7 +166,7 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
 
     private fun sendLocation(location: Location) {
         val admin = AdminLocation(location.latitude, location.longitude)
-        MapActivity.myPostinioLatLng.value = LatLng(location.latitude, location.longitude)
+        MapActivity.myPositionLatLng.value = LatLng(location.latitude, location.longitude)
         Log.i("TAG", "sendLocation: "+admin.toString())
         mAuth.currentUser?.uid?.let { userId ->
             database.getReference("Admins").child(userId).setValue(admin).addOnCompleteListener {

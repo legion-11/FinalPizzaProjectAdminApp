@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/showMyOrders"
+        android:checkable="true"
+        android:checked="true"
+        android:icon="@drawable/ic_add_location"
+        android:title="my orders"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/showNewOrders"
+        android:checkable="true"
+        android:checked="true"
+        android:icon="@drawable/ic_all_location"
+        android:title="new orders"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/showMe"
+        android:icon="@drawable/ic_my_location"
+        android:title="my location"
+        app:showAsAction="ifRoom" />
+</menu>

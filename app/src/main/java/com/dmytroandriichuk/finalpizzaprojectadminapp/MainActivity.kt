@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
         if (mAuth.currentUser != null) {
             Log.i("auth", "onStart: registered")
-            intent = Intent(this@MainActivity, SeeOrdersActivity::class.java)
+            intent = Intent(this@MainActivity, MapsActivity::class.java)
             startActivity(intent)
         } else {
             Log.i("auth", "onStart: not registered")
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkAdmin(currentUser: FirebaseUser?) {
         database.getReference("Users").child(currentUser!!.uid).child("isAdmin").setValue(true).addOnCompleteListener {
             if (it.isSuccessful) {
-                intent = Intent(this@MainActivity, SeeOrdersActivity::class.java)
+                intent = Intent(this@MainActivity, MapsActivity::class.java)
                 startActivity(intent)
             } else {
                 buildDialog("User not found")
