@@ -19,16 +19,58 @@
         app:layout_constraintTop_toBottomOf="@+id/mapView" />
 
     <TextView
+        android:id="@+id/phoneNumberTV"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="phone"
+        app:layout_constraintBottom_toTopOf="@+id/addressTV"
+        app:layout_constraintEnd_toEndOf="@+id/personsNameTV"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/personsNameTV"
+        app:layout_constraintTop_toBottomOf="@+id/personsNameTV" />
+
+    <TextView
         android:id="@+id/personsNameTV"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="name"
         app:layout_constraintBottom_toTopOf="@+id/phoneNumberTV"
         app:layout_constraintEnd_toEndOf="@+id/addressTV"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/textView5"
         app:layout_constraintStart_toStartOf="@+id/toppingsTV"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Address"
+        app:layout_constraintEnd_toEndOf="@+id/textView8"
+        app:layout_constraintHorizontal_bias="0.421"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/addressTV" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pizza"
+        app:layout_constraintEnd_toEndOf="@+id/textView8"
+        app:layout_constraintHorizontal_bias="0.285"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/pizzaTV" />
+
+    <TextView
+        android:id="@+id/pizzaTV"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="pizza"
+        app:layout_constraintBottom_toTopOf="@+id/toppingsTV"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/toppingsTV"
+        app:layout_constraintTop_toBottomOf="@+id/addressTV" />
 
     <TextView
         android:id="@+id/addressTV"
@@ -38,20 +80,9 @@
         android:text="address"
         app:layout_constraintBottom_toTopOf="@+id/pizzaTV"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/toppingsTV"
         app:layout_constraintTop_toBottomOf="@+id/phoneNumberTV" />
-
-    <TextView
-        android:id="@+id/pizzaTV"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="pizza"
-        app:layout_constraintBottom_toTopOf="@+id/toppingsTV"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/toppingsTV"
-        app:layout_constraintTop_toBottomOf="@+id/addressTV" />
 
     <TextView
         android:id="@+id/toppingsTV"
@@ -62,9 +93,18 @@
         android:text="toppings"
         app:layout_constraintBottom_toTopOf="@+id/mapView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/textView8"
         app:layout_constraintTop_toBottomOf="@+id/pizzaTV" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Toppings"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/toppingsTV" />
 
     <TextView
         android:id="@+id/textView5"
@@ -72,48 +112,9 @@
         android:layout_height="wrap_content"
         android:text="Name"
         app:layout_constraintEnd_toEndOf="@+id/textView8"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.301"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/personsNameTV" />
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Address"
-        app:layout_constraintEnd_toEndOf="@+id/textView8"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/addressTV" />
-
-    <TextView
-        android:id="@+id/textView7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Pizza"
-        app:layout_constraintEnd_toEndOf="@+id/textView8"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/pizzaTV" />
-
-    <TextView
-        android:id="@+id/textView8"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Toppings"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/toppingsTV" />
-
-    <TextView
-        android:id="@+id/phoneNumberTV"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="phone"
-        app:layout_constraintBottom_toTopOf="@+id/addressTV"
-        app:layout_constraintEnd_toEndOf="@+id/personsNameTV"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/personsNameTV"
-        app:layout_constraintTop_toBottomOf="@+id/personsNameTV" />
 
     <fragment
         android:id="@+id/mapView"

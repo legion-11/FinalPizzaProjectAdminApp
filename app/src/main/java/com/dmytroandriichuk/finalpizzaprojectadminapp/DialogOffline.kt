@@ -16,11 +16,11 @@ class DialogOffline(val message: String): DialogFragment() {
             builder.setTitle("Failed to sign in!")
                 .setMessage(message)
                 .setPositiveButton("Ok") {
-                        dialog, id ->  dialog.cancel()
+                        dialog, _ ->  dialog.cancel()
                 }
 
             if (message == "Account is not verified"){
-                builder.setNegativeButton("Send Verification Letter") { dialog, id ->
+                builder.setNegativeButton("Send Verification Letter") { dialog, _ ->
                     (activity as MainActivity).sendVerificationLetter()
                     dialog.cancel()
                 }

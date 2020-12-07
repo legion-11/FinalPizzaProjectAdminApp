@@ -74,7 +74,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
                     Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
                 }
             }
-            reference.addValueEventListener(listener as ValueEventListener)
+            reference.addValueEventListener(listener)
         }
     }
 
@@ -95,7 +95,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             findViewById<TextView>(R.id.pizzaTV).text = size + order?.pizza
-            latLng = LatLng(order.lat!!, order.lng!!)
+            latLng = LatLng(order.lat, order.lng)
 
             Log.i("TAG", "onMapReady: "+latLng.toString())
 
