@@ -25,7 +25,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import java.io.Serializable
 
 
 class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListener  {
@@ -47,6 +46,8 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
     private lateinit var database: FirebaseDatabase
     private lateinit var querry: Query
     private var listener: ValueEventListener? = null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_see_orders)
@@ -54,16 +55,15 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
         locationRequest.interval = 30_000
         locationRequest.fastestInterval = 5_000
         locationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+        mAuth = FirebaseAuth.getInstance();
+        database = Firebase.database
 
         updateGPS()
 
-        mAuth = FirebaseAuth.getInstance();
-        database = Firebase.database
 
         val list = findViewById<RecyclerView>(R.id.list)
         list.layoutManager = LinearLayoutManager(this)
         list.addItemDecoration(DividerItemDecoration(list.context, DividerItemDecoration.VERTICAL))
-
         ordersLiveData.observe(this, {
             Log.i("TAG", "onCreate: liveDataObserved")
             list.adapter = OrdersAdapter(it, this)
@@ -71,20 +71,26 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
         })
 
         loadWaitingFromFireBaseDB(this)
-        findViewById<Button>(R.id.seeOrdersButton).setOnClickListener {
+
+        val button = findViewById<Button>(R.id.seeOrdersButton)
+        button.setOnClickListener {
             if (title == "You can take this orders"){
                 title = "My orders"
+                button.text = "My orders"
                 loadMyFromFireBaseDB(this)
             } else {
                 title = "You can take this orders"
+                button.text = "New orders"
                 loadWaitingFromFireBaseDB(this)
             }
         }
+
     }
 
     private fun loadWaitingFromFireBaseDB(context: Context) {
         querry = database.getReference("Order").orderByChild("status").equalTo(0.toDouble() )
         if (listener != null) { querry.removeEventListener(listener as ValueEventListener) }
+
         listener = object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
@@ -122,23 +128,18 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
 
         listener = object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
+                val orders = mutableListOf<Order>()
+                val keys = mutableListOf<String>()
 
-                    val orders = mutableListOf<Order>()
-                    val keys = mutableListOf<String>()
-
-                    for (childSnapshot in snapshot.children) {
-                        val order = childSnapshot.getValue(Order::class.java)
-                        order?.let {orders.add(it)}
-                        childSnapshot.key?.let { keys.add(it) }
-                    }
-
-                    ordersLiveData.value = orders
-                    this@SeeOrdersActivity.keys = keys
-
-                } else {
-                    Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
+                for (childSnapshot in snapshot.children) {
+                    val order = childSnapshot.getValue(Order::class.java)
+                    order?.let {orders.add(it)}
+                    childSnapshot.key?.let { keys.add(it) }
                 }
+
+                ordersLiveData.value = orders
+                this@SeeOrdersActivity.keys = keys
+
             }
             override fun onCancelled(error: DatabaseError) {
                 Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
@@ -163,9 +164,10 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
             }
         }
     }
+
     private fun sendLocation(location: Location) {
         val admin = AdminLocation(location.latitude, location.longitude)
-        MapActivity.ll.value = LatLng(location.latitude, location.longitude)
+        MapActivity.myPostinioLatLng.value = LatLng(location.latitude, location.longitude)
         Log.i("TAG", "sendLocation: "+admin.toString())
         mAuth.currentUser?.uid?.let { userId ->
             database.getReference("Admins").child(userId).setValue(admin).addOnCompleteListener {
@@ -178,17 +180,15 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
         when (requestCode) {
             1 -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
                     updateGPS()
-
                 } else {
                     Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
+                    mAuth.signOut()
                     finish()
                 }
-                return
             }
         }
     }
@@ -206,15 +206,9 @@ class SeeOrdersActivity : AppCompatActivity(), OrdersAdapter.OnOrderClickListene
 
     private fun seeOrder(position: Int) {
         val key = keys[position]
-
         val newIntent = Intent(this@SeeOrdersActivity, MapActivity::class.java).apply {
             putExtra("key", keys[position])
         }
         startActivity(newIntent)
-//        order?.status = 1
-//        order?.adminId = mAuth.currentUser?.uid
-//        database.getReference("Order").child(keys[position]).setValue(order).addOnFailureListener {
-//            Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
-//        }
     }
 }

@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
@@ -13,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -21,14 +25,16 @@ import com.google.firebase.ktx.Firebase
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private lateinit var listener: ValueEventListener
-    private lateinit var reference: DatabaseReference
-    private var key: String? = null
-    private var latLng: LatLng? = null
     private lateinit var mMap: GoogleMap
     private lateinit var mAuth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
+    private lateinit var listener: ValueEventListener
+    private lateinit var reference: DatabaseReference
+
+    private var key: String? = null
+    private var latLng: LatLng? = null
     private var order: MutableLiveData<Order> = MutableLiveData()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
@@ -37,35 +43,35 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         database = Firebase.database
         val mapFragment = supportFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
         key = intent.getStringExtra("key")
     }
 
     private fun loadFromFireBaseDB(context: Context) {
-        reference = database.getReference("Order").child(key!!)
-        listener = object: ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    order.value = snapshot.getValue(Order::class.java)
-                } else {
+        key?.let { key ->
+            reference = database.getReference("Order").child(key)
+            listener = object: ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        order.value = snapshot.getValue(Order::class.java)
+                    } else {
+                        Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
                     Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
                 }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(context, "Something wrong happened", Toast.LENGTH_LONG).show()
-            }
+            reference.addValueEventListener(listener as ValueEventListener)
         }
-        reference.addValueEventListener(listener as ValueEventListener)
     }
-
 
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        val marker = MarkerOptions()
-        var flag1 = true
-        var latLngflag: LatLng? = null
 
+        var orderMarker: Marker? = null
         order.observe(this, { order ->
             findViewById<TextView>(R.id.addressTV).text = order?.flat + ", " + order?.address
             findViewById<TextView>(R.id.personsNameTV).text = order?.name
@@ -78,43 +84,70 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
             findViewById<TextView>(R.id.pizzaTV).text = size + order?.pizza
-            latLng = order.lat?.let { lat ->
-                order.lng?.let { lng ->
-                    LatLng(lat, lng)
-                }
-            }
+            latLng = LatLng(order.lat!!, order.lng!!)
 
             Log.i("TAG", "onMapReady: "+latLng.toString())
 
             latLng?.let {
-                marker.apply {
-                    position(it)
-                    title(order?.address)
-                }
-                if (flag1) {
-                    mMap.addMarker(marker)
-                    flag1 = false
-                }
-                if (latLngflag != latLng) {
+                if (orderMarker == null) {
+                    orderMarker = mMap.addMarker(MarkerOptions().apply {
+                        position(it)
+                        title(order?.address)
+                    })
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13f))
-                    latLngflag = latLng
+                } else if (orderMarker?.position != latLng){
+                    orderMarker?.position = it
+                    orderMarker?.title = order?.address
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13f))
                 }
             }
         })
-        val myLocation = MarkerOptions()
-        var flag2 = true
-        ll.observe(this, {
-            myLocation.apply {
-                position(it)
-                if (flag2) {
-                    mMap.addMarker(myLocation)
-                    flag2 = false
-                }
+
+        var myLocation: Marker? = null
+        myPostinioLatLng.observe(this, {
+            if (myLocation == null) {
+                myLocation = mMap.addMarker(MarkerOptions().apply {
+                    position(it)
+                })
+            } else {
+                myLocation?.position = it
             }
         })
+
+        val progressBar = findViewById<ProgressBar>(R.id.mapProgressBar)
+        progressBar.visibility = View.VISIBLE
         loadFromFireBaseDB(this)
+        progressBar.visibility = View.GONE
+        val button = findViewById<Button>(R.id.takeOrDismissButton)
+        button.setOnClickListener {
+            order.value?.let { order ->
+                progressBar.visibility = View.VISIBLE
+                if (button.text == "Take this order") {
+                    button.text = "Abort"
+                    order.status = 1
+                    order.adminId = mAuth.currentUser?.uid
+                    database.getReference("Order").child(key!!).setValue(order)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "success", Toast.LENGTH_LONG).show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(this, it.message, Toast.LENGTH_LONG).show()
+                            }
+
+                } else if (button.text == "Abort"){
+                    button.text = "Take this order"
+                    order.status = 0
+                    order.adminId = null
+                    database.getReference("Order").child(key!!).setValue(order).addOnFailureListener {
+                        Toast.makeText(this, "Something wrong happened", Toast.LENGTH_LONG).show()
+                    }
+                }
+                progressBar.visibility = View.GONE
+            }
+        }
     }
+
     companion object {
-        val ll: MutableLiveData<LatLng> = MutableLiveData()
+        val myPostinioLatLng: MutableLiveData<LatLng> = MutableLiveData()
     }
 }

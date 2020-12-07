@@ -17,7 +17,7 @@ data class Order (
     var price: Double? = 0.0,
     var date:Long? = 0,
     var status:Int? = 0,
-    var adminId:String? = "",
+    var adminId:String? = null,
 ) {
     override fun toString(): String {
         return "Order(userId=$userId, name=$name, address=$address, flat=$flat, lat=$lat, lng=$lng," +
