@@ -72,25 +72,21 @@
         android:id="@+id/forgetPasswordTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
         android:layout_marginTop="10dp"
         android:text="Forgot Password"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/registertTV"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/SignInButton"
         app:layout_constraintTop_toBottomOf="@+id/SignInButton" />
 
     <TextView
         android:id="@+id/registertTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="15dp"
         android:text="Register"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintEnd_toEndOf="@+id/SignInButton"
         app:layout_constraintStart_toEndOf="@+id/forgetPasswordTV"
         app:layout_constraintTop_toTopOf="@+id/forgetPasswordTV" />
 

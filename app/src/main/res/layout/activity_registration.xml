@@ -11,6 +11,8 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         app:errorEnabled="true"
         app:layout_constraintBottom_toTopOf="@+id/passwordRegistrationLayout"
         app:layout_constraintTop_toTopOf="parent"
@@ -21,7 +23,8 @@
             android:id="@+id/emailRegistrationET"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="email" />
+            android:background="@drawable/edit_round"
+            android:hint="Email" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -29,6 +32,8 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         app:errorEnabled="true"
         app:layout_constraintBottom_toTopOf="@+id/nameRegistrationLayout"
         app:layout_constraintTop_toBottomOf="@+id/emailRegistrationLayout"
@@ -38,7 +43,8 @@
             android:id="@+id/passwordlRegistrationET"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="password" />
+            android:background="@drawable/edit_round"
+            android:hint="Password" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -46,6 +52,8 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         app:layout_constraintBottom_toTopOf="@+id/confirmRegistrationButton"
         app:layout_constraintTop_toBottomOf="@+id/passwordRegistrationLayout"
         tools:layout_editor_absoluteX="207dp">
@@ -54,17 +62,19 @@
             android:id="@+id/nameRegistrationET"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/edit_round"
             android:hint="Full Name" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/confirmRegistrationButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:text="Confirm"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/nameRegistrationLayout"
+        app:layout_constraintStart_toStartOf="@+id/nameRegistrationLayout"
         app:layout_constraintTop_toBottomOf="@+id/nameRegistrationLayout" />
 
     <ProgressBar
@@ -87,7 +97,7 @@
         app:layout_constraintBottom_toTopOf="@+id/emailRegistrationLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"
-        
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/finallogo" />
