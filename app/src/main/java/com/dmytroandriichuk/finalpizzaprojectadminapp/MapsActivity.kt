@@ -248,7 +248,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         val top = dialog.findViewById<TextView>(R.id.dialogToppingsTV)
         top.text = order.toppings?.joinToString(" ") ?: "no toppings"
         val price = dialog.findViewById<TextView>(R.id.dialogPriceTV)
-        price.text = order.price.toString()
+        price.text = resources.getString(R.string.format_price).format(order.price)
         val progressBar = dialog.findViewById<ProgressBar>(R.id.mapsProgressBar)
         val buttonTake = dialog.findViewById<Button>(R.id.takeDismissButton)
         val buttonComplete = dialog.findViewById<Button>(R.id.dialogCompleteOrderButton)
