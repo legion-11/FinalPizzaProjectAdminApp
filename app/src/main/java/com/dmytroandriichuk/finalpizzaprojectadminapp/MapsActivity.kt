@@ -51,9 +51,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var mAuth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
 
+    // Listener and query reference to new orders
     private lateinit var newOrdersQuery: Query
     private var listenerNewOrders: ValueEventListener? = null
 
+    // Listener and query reference to taken orders
     private lateinit var myOrdersQuery: Query
     private var listenerMyOrders: ValueEventListener? = null
 
@@ -63,13 +65,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
-// Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
 
-
         mapFragment.getMapAsync(this)
 
+        //interval of sending location data to firebase db
         locationRequest.interval = 30_000
         locationRequest.fastestInterval = 5_000
         locationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
@@ -78,6 +80,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     fun updateGPS(){
+        //check permission and get location
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==  PackageManager.PERMISSION_GRANTED) {
             fusedLocationProviderClient.requestLocationUpdates(
@@ -92,6 +95,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    //check if permission was granted, then enable location update (send location)
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
@@ -107,6 +111,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    // send location to firebase db
     private fun sendLocation(location: Location) {
         val admin = AdminLocation(location.latitude, location.longitude)
         myLocation.value = LatLng(location.latitude, location.longitude)
@@ -120,10 +125,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    // start observing my location, taken , and new orders data
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.setOnMarkerClickListener(this)
 
+        //show my location on map
         var myLocationMarker: Marker? = null
         myLocation.observe(this, {
             if (myLocationMarker == null) {
@@ -142,6 +149,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
         })
 
+        // show location of new orders, will be updated with each new order appearing and changing
         var myOrdersMarkersList = mutableListOf<Marker>()
         newOrdersLiveData.observe(this, {
             val tmp = mutableListOf<Marker>()
@@ -161,6 +169,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             myOrdersMarkersList = tmp
         })
 
+        // show location of taken orders, will be updated with each new order appearing and changing
         var newOrdersMarkersList = mutableListOf<Marker>()
         myOrdersLiveData.observe(this, {
             val tmp = mutableListOf<Marker>()
@@ -179,7 +188,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         })
 
-
+        //checkbox to enable showing markers of taken orders on map
         val myOrdersCB = findViewById<CheckBox>(R.id.myOrdersCB)
         myOrdersCB.setOnCheckedChangeListener { _: CompoundButton, b: Boolean ->
             if (b) {
@@ -190,6 +199,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
         }
 
+        //checkbox to enable showing markers of new orders on map
         val newOrdersCB = findViewById<CheckBox>(R.id.newOrdersCB)
         if (newOrdersCB.isChecked) {loadWaitingFromFireBaseDB()}
         newOrdersCB.setOnCheckedChangeListener { _: CompoundButton, b: Boolean ->
@@ -201,6 +211,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
         }
 
+        //checkbox to enable showing markers of current location
         val myLocationCB = findViewById<CheckBox>(R.id.myLocationCB)
         myLocationCB.setOnCheckedChangeListener { _: CompoundButton, b: Boolean ->
             if (b) {
@@ -214,6 +225,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         myLocationCB.isChecked = true
     }
 
+    //show dialogs depending on was that dialog taken(status == 1) or not (status == 0)
     override fun onMarkerClick(marker: Marker): Boolean {
         val p = marker.tag as Pair<*, *>?
         p?.let {
@@ -232,6 +244,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         return false
     }
 
+    // build dialog with order information
     private fun buildDialog(pair: Pair<Order, String>, action: String) {
         val order = pair.first
         val key = pair.second
@@ -280,6 +293,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         dialog.show()
     }
 
+    // set order status to competed (2)
     private fun completeOrder(key: String, order: Order, buttonCompleteView: Button, buttonAbortView: Button, userId: String?) {
         order.status = if (userId == null) 2 else 1
         order.adminId = userId
@@ -298,7 +312,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
     }
 
-
+    // check if order was not changed
     private fun checkOrderIsTakenAndTakeItIfNot(key: String, initialOrder: Order, buttonView: Button): ValueEventListener {
         return object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -314,6 +328,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    // set order status to 1 and set adminId to current user
     private fun setCurrentUserResponsibleForOrder(key: String, order: Order, buttonView: Button, userId: String?) {
         order.status = if (userId != null) 1 else 0
         order.adminId = userId
@@ -329,6 +344,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
     }
 
+    // load orders with status 0
     private fun loadWaitingFromFireBaseDB() {
         newOrdersQuery = database.getReference("Order").orderByChild("status").equalTo(0.toDouble() )
 
@@ -354,6 +370,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         newOrdersQuery.addValueEventListener(listenerNewOrders as ValueEventListener)
     }
 
+    // load orders with adminId == current user
     private fun loadMyFromFireBaseDB() {
         myOrdersQuery = database.getReference("Order").orderByChild("adminId").equalTo(mAuth.currentUser?.uid)
 
@@ -379,6 +396,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         myOrdersQuery.addValueEventListener(listenerMyOrders as ValueEventListener)
     }
 
+    // logout after double click
     override fun onBackPressed() {
         if (System.currentTimeMillis() - startTime < 2000){
             super.onBackPressed()
@@ -397,6 +415,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    // singleton with mutable livedata
     companion object {
         val newOrdersLiveData: MutableLiveData<List<Pair<Order, String>>> = MutableLiveData()
         val myOrdersLiveData: MutableLiveData<List<Pair<Order, String>>> = MutableLiveData()

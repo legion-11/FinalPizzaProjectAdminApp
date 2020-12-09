@@ -7,6 +7,8 @@ import android.os.Bundle
 import androidx.annotation.NonNull
 import androidx.fragment.app.DialogFragment
 
+
+// class for showing error message
 class DialogOffline(val message: String): DialogFragment() {
 
     @NonNull

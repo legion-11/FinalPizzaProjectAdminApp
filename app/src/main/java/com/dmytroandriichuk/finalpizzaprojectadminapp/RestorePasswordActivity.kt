@@ -12,6 +12,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 
+//provide screen for sending Password Reset Email
 class RestorePasswordActivity : AppCompatActivity() {
     private lateinit var mAuth: FirebaseAuth
 
@@ -42,6 +43,7 @@ class RestorePasswordActivity : AppCompatActivity() {
             }
             probressBar.visibility = View.VISIBLE
             if (errors) return@setOnClickListener
+            //send email verification letter
             mAuth.sendPasswordResetEmail(email).addOnCompleteListener {
                 if (it.isSuccessful) {
                     Toast.makeText(this, "Check your email", Toast.LENGTH_LONG).show()

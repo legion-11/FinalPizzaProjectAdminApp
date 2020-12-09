@@ -18,6 +18,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
+// provide screen for registration
 class RegistrationActivity : AppCompatActivity() {
 
 
@@ -53,6 +54,7 @@ class RegistrationActivity : AppCompatActivity() {
         registerButton.setOnClickListener { registerUser() }
     }
 
+    //check input and sen email verification letter
     private fun registerUser() {
 
         val email = emailET.text.toString().trim()

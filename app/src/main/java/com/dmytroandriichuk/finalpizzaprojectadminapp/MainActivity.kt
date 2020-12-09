@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var emailLayout: TextInputLayout
     private lateinit var passwordLayout: TextInputLayout
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -66,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //
     private fun checkAdmin(currentUser: FirebaseUser?) {
         database.getReference("Users").child(currentUser!!.uid).child("isAdmin").setValue(true).addOnCompleteListener {
             if (it.isSuccessful) {
@@ -77,6 +79,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // check input and show errors if so, then authentificate user
     private fun userLogIn() {
         val email = emailET.text.toString().trim()
         val password = passwordET.text.toString().trim()
@@ -131,6 +134,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // show error message
     private fun buildDialog(message: String){
         val dialog = DialogOffline(message)
         val manager: FragmentManager = supportFragmentManager
@@ -148,10 +152,12 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    //send Email Verification
     fun sendVerificationLetter() {
         mAuth.currentUser?.sendEmailVerification()
     }
 
+    //check if there is internet on the device
     private fun isOnline(): Boolean {
         val connectivityManager =
                 this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
