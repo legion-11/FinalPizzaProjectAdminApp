@@ -25,5 +25,7 @@
     <string name="topping">topping</string>
     <string name="date">Date</string>
     <string name="format_price">%.2f$</string>
+    <string name="complete">Complete</string>
+    <string name="take">Take</string>
 
 </resources>

@@ -281,10 +281,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
 
         buttonComplete.setOnClickListener {
-            if (buttonComplete.text == "complete") {
+            if (buttonComplete.text == resources.getString(R.string.complete)) {
+                Log.i("TAG", "buildDialog: null")
                 completeOrder(key, order, buttonComplete, buttonTake, null)
             } else {
                 completeOrder(key, order, buttonComplete, buttonTake, mAuth.currentUser?.uid)
+                Log.i("TAG", "buildDialog: ${mAuth.currentUser?.uid}")
             }
         }
 
@@ -297,6 +299,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private fun completeOrder(key: String, order: Order, buttonCompleteView: Button, buttonAbortView: Button, userId: String?) {
         order.status = if (userId == null) 2 else 1
         order.adminId = userId
+        Log.i("TAG", "completeOrder: $order")
         database.getReference("Order").child(key).setValue(order)
             .addOnSuccessListener {
                 Toast.makeText(this, "success", Toast.LENGTH_LONG).show()
