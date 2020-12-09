@@ -207,7 +207,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 updateGPS()
             } else {
                 fusedLocationProviderClient.removeLocationUpdates(locationCallback)
-                myLocation.value = null
+                myLocationMarker?.remove()
+                myLocationMarker = null
             }
         }
         myLocationCB.isChecked = true
