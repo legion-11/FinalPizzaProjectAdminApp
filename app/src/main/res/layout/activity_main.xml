@@ -29,7 +29,7 @@
             android:background="@drawable/edit_round"
             android:drawableStart="@drawable/user"
             android:drawablePadding="10dp"
-            android:hint="Enter Email"
+            android:hint="@string/enter_email"
             />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -54,7 +54,7 @@
             android:background="@drawable/edit_round"
             android:drawableStart="@drawable/pass"
             android:drawablePadding="10dp"
-            android:hint="Enter Password" />
+            android:hint="@string/enter_password" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -63,7 +63,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="Sign In"
+        android:text="@string/sign_in"
         app:layout_constraintBottom_toTopOf="@+id/forgetPasswordTV"
         app:layout_constraintEnd_toEndOf="@+id/passwordLayout"
         app:layout_constraintStart_toStartOf="@+id/passwordLayout" />
@@ -73,7 +73,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="Forgot Password"
+        android:text="@string/forgot_password"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/registertTV"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -84,7 +84,7 @@
         android:id="@+id/registertTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Register"
+        android:text="@string/register"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/SignInButton"
         app:layout_constraintStart_toEndOf="@+id/forgetPasswordTV"
@@ -113,6 +113,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.921"
-        app:srcCompat="@drawable/finallogo" />
+        app:srcCompat="@drawable/finallogo"
+        android:contentDescription="@string/logo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
