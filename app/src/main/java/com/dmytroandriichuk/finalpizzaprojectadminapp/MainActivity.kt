@@ -12,6 +12,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import com.dmytroandriichuk.finalpizzaprojectadminapp.dialogs.DialogOffline
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -69,14 +70,13 @@ class MainActivity : AppCompatActivity() {
 
     //
     private fun checkAdmin(currentUser: FirebaseUser?) {
-        database.getReference("Users").child(currentUser!!.uid).child("isAdmin").setValue(true).addOnCompleteListener {
-            if (it.isSuccessful) {
-                intent = Intent(this@MainActivity, MapsActivity::class.java)
-                startActivity(intent)
-            } else {
-                buildDialog("User not found")
-            }
+        if (currentUser != null) {
+            intent = Intent(this@MainActivity, MapsActivity::class.java)
+            startActivity(intent)
+        } else {
+            buildDialog("User not found")
         }
+
     }
 
     // check input and show errors if so, then authentificate user

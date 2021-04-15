@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="steps_to_get_120_percent">40000</integer>
+</resources>

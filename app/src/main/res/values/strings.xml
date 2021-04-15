@@ -27,5 +27,8 @@
     <string name="format_price">%.2f$</string>
     <string name="complete">Complete</string>
     <string name="take">Take</string>
+    <string name="abort">Abort</string>
+    <string name="location_updated">Location Updated: %1$s</string>
+    <string name="steps_statistic">steps statistic</string>
 
 </resources>

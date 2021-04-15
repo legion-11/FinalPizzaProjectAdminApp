@@ -14,8 +14,8 @@ data class Order (
     var pizza:String? = "",
     var size:Int? = 0,
     var toppings:List<String>? = emptyList(),
-    var price: Double? = 0.0,
-    var date:Long? = 0,
+    var price: Double = 0.0,
+    var date:Long = 0,
     var status:Int? = 0,
     var adminId:String? = null,
 ) {

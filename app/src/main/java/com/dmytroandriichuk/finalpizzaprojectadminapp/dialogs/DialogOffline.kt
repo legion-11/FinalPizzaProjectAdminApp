@@ -1,11 +1,11 @@
-package com.dmytroandriichuk.finalpizzaprojectadminapp
+package com.dmytroandriichuk.finalpizzaprojectadminapp.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import androidx.annotation.NonNull
 import androidx.fragment.app.DialogFragment
+import com.dmytroandriichuk.finalpizzaprojectadminapp.MainActivity
 
 
 // class for showing error message
